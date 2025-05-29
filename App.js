@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TextInput, Button } from 'react-native';
 import { Card, Icon } from 'react-native-elements';
 import axios from 'axios';
 
 export default function WeatherScreen() {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [city, setCity] = useState('');
+
 
   const getWeather = async () => {
     try {
-      const response = await axios.get('http://10.0.0.10:3000/weather?city=Recife');
+      const response = await axios.get(`http://172.22.80.1:3000/weather?city=${city}`);
 
       setWeather(response.data.results);
     } catch (error) {
@@ -33,12 +35,36 @@ export default function WeatherScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.city}>{weather.city}</Text>
+
+      <View style={styles.cityInputContainer}>
+  <TextInput
+    style={styles.cityInput}
+    value={city}
+    onChangeText={setCity}
+    placeholder="Digite a cidade"
+    placeholderTextColor="#fff"
+  />
+  <Button title="Buscar" onPress={getWeather} />
+      </View>
+
 
       <View style={styles.iconContainer}>
-        <Icon name="wb-sunny" size={60} color="#FFD700" />
-        <Icon name="cloud" size={40} color="#fff" style={styles.cloudIcon} />
-      </View>
+  {weather.condition_slug === 'rain' ? (
+    <>
+      <Icon name="cloud" size={60} color="#87CEEB" />
+      <Icon name="umbrella" size={40} color="#00BFFF" style={styles.cloudIcon} />
+    </>
+  ) : weather.condition_slug === 'storm' ? (
+    <Icon name="bolt" size={60} color="#FFD700" />
+  ) : weather.condition_slug === 'cloud' ? (
+    <Icon name="cloud" size={60} color="#ccc" />
+  ) : (
+    <Icon name="wb-sunny" size={60} color="#FFD700" />
+  )}
+</View>
+
+
+
 
       <Text style={styles.temp}>{weather.temp}°</Text>
       <Text style={styles.subText}>Max.: {weather.forecast[0].max}° Min.: {weather.forecast[0].min}°</Text>
@@ -188,6 +214,22 @@ nextForecastDay: {
 nextForecastTemp: {
   fontSize: 14,
   color: '#333',
+},
+cityInputContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 10,
+},
+
+cityInput: {
+  borderBottomWidth: 1,
+  borderBottomColor: '#fff',
+  color: '#fff',
+  fontSize: 18,
+  marginRight: 10,
+  paddingVertical: 5,
+  width: 150,
 },
 
 
